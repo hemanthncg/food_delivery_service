@@ -1,0 +1,151 @@
+{
+  "info": {
+    "name": "SwiftEats API Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/health"
+      }
+    },
+    {
+      "name": "Restaurant - Enroll",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"rest1\",\n  \"name\": \"Pizza Place\",\n  \"location\": {\n    \"lat\": 19.11,\n    \"lng\": 72.89\n  },\n  \"menu\": [\n    \"Margherita\",\n    \"Pepperoni\"\n  ]\n}"
+        },
+        "url": "{{baseUrl}}/restaurant/enroll"
+      }
+    },
+    {
+      "name": "Restaurants - List",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/restaurants"
+      }
+    },
+    {
+      "name": "Menu - Get by Restaurant",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/menu?restaurant_id=rest1",
+          "host": ["{{baseUrl}}"],
+          "path": ["menu"],
+          "query": [
+            { "key": "restaurant_id", "value": "rest1" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Driver - Enroll",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"driver1\",\n  \"name\": \"Alice\"\n}"
+        },
+        "url": "{{baseUrl}}/driver/enroll"
+      }
+    },
+    {
+      "name": "Drivers - List",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/drivers"
+      }
+    },
+    {
+      "name": "Driver - Update Location",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"driver1\",\n  \"location\": {\n    \"lat\": 19.12,\n    \"lng\": 72.88\n  }\n}"
+        },
+        "url": "{{baseUrl}}/driver/location"
+      }
+    },
+    {
+      "name": "Driver - Get Location",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/driver/location?id=driver1",
+          "host": ["{{baseUrl}}"],
+          "path": ["driver", "location"],
+          "query": [
+            { "key": "id", "value": "driver1" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Order - Place",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"order1\",\n  \"restaurant_id\": \"rest1\",\n  \"items\": [\n    \"Margherita\"\n  ],\n  \"user_location\": {\n    \"lat\": 19.12,\n    \"lng\": 72.88\n  }\n}"
+        },
+        "url": "{{baseUrl}}/order"
+      }
+    },
+    {
+      "name": "Order - Delivered",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"order_id\": \"order1\"\n}"
+        },
+        "url": "{{baseUrl}}/order/delivered"
+      }
+    },
+    {
+      "name": "Order - Get",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/order/get?id=order1",
+          "host": ["{{baseUrl}}"],
+          "path": ["order", "get"],
+          "query": [
+            { "key": "id", "value": "order1" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Orders - List",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/orders"
+      }
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+sequenceDiagram
+autonumber
+participant Client as "Client"
+participant API as "HTTP API (apis)"
+participant Menu as "Menu Module"
+participant Order as "Order Module"
+participant Driver as "Driver Module"
+participant Redis as "Redis (data + GEO)"
+participant Kafka as "Kafka"
+participant Consumer as "Order Consumers"
+participant Simulator as "Simulator"
+
+Client->>API: POST /restaurant/enroll
+API->>Menu: EnrollRestaurant
+Menu->>Redis: Save restaurant
+Menu->>Redis: Save menu
+API-->>Client: 200 OK
+
+Client->>API: POST /driver/enroll
+API->>Driver: EnrollDriver
+Driver->>Redis: HSET drivers
+API-->>Client: 200 OK
+
+Simulator->>Driver: UpdateLocation
+Driver->>Redis: GEOADD drivers_geo
+Driver->>Redis: HSET drivers
+
+Client->>API: POST /order
+API->>Order: PlaceOrder
+Order->>Redis: Save order
+Order->>Kafka: Publish assign evt
+Order->>Kafka: Publish status placed
+API-->>Client: 200 created
+
+Consumer->>Kafka: Consume assign evt
+Consumer->>Driver: Find+reserve nearest
+Driver->>Redis: GEORADIUS by user loc
+Driver->>Redis: SETNX driver_lock:id
+Consumer->>Order: Update order assigned
+Consumer->>Kafka: Publish status assigned
+
+Client->>API: GET /order/get?id=...
+API->>Order: GetOrder
+Order->>Redis: HGET orders
+API-->>Client: Order with driver+status
+
+Client->>API: POST /order/delivered
+API->>Kafka: Publish status delivered
+API-->>Client: 200 OK
+
+Consumer->>Kafka: Consume status evt
+Consumer->>Order: Update status
+Consumer->>Driver: ReleaseDriver
+Driver->>Redis: DEL driver_lock:id
+
+Client->>API: GET /drivers
+API->>Driver: ListDrivers
+Driver->>Redis: HVALS drivers
+API->>Driver: IsDriverAvailable
+Driver->>Redis: EXISTS driver_lock:id
+API-->>Client: Drivers with availability
+
+
