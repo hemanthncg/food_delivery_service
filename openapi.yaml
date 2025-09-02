@@ -1,0 +1,633 @@
+openapi: 3.0.3
+info:
+  title: Food Delivery Service API
+  description: |
+    A comprehensive API for managing food delivery operations including 
+    restaurants, menus, drivers, orders, and delivery tracking.
+    
+    ## Features
+    - Restaurant management and menu operations
+    - Driver enrollment and location tracking
+    - Order placement and status management
+    - Real-time delivery tracking
+    - Health monitoring and system status
+  version: 1.0.0
+  contact:
+    name: Food Delivery Service Team
+    email: support@fooddelivery.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8080
+    description: Development server
+  - url: https://api.fooddelivery.com
+    description: Production server
+
+paths:
+  /health:
+    get:
+      summary: Health Check
+      description: Check if the service is running
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "OK"
+
+  /restaurant/enroll:
+    post:
+      summary: Enroll Restaurant
+      description: Register a new restaurant with menu items
+      operationId: enrollRestaurant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrollRequest'
+      responses:
+        '200':
+          description: Restaurant enrolled successfully
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "OK"
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '405':
+          description: Method not allowed
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /restaurants:
+    get:
+      summary: List Restaurants
+      description: Get all registered restaurants
+      operationId: listRestaurants
+      responses:
+        '200':
+          description: List of restaurants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Restaurant'
+        '405':
+          description: Method not allowed
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /menu:
+    get:
+      summary: Get Restaurant Menu
+      description: Retrieve menu items for a specific restaurant
+      operationId: getMenu
+      parameters:
+        - name: restaurant_id
+          in: query
+          required: true
+          description: Restaurant identifier
+          schema:
+            type: string
+            example: "rest1"
+      responses:
+        '200':
+          description: Restaurant menu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Menu'
+        '400':
+          description: Missing restaurant ID
+        '405':
+          description: Method not allowed
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /driver/enroll:
+    post:
+      summary: Enroll Driver
+      description: Register a new delivery driver
+      operationId: enrollDriver
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Driver'
+      responses:
+        '200':
+          description: Driver enrolled successfully
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "OK"
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '405':
+          description: Method not allowed
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /drivers:
+    get:
+      summary: List Drivers
+      description: Get all registered drivers with availability status
+      operationId: listDrivers
+      responses:
+        '200':
+          description: List of drivers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DriverWithStatus'
+        '405':
+          description: Method not allowed
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /driver/location:
+    get:
+      summary: Get Driver Location
+      description: Retrieve current location of a driver
+      operationId: getDriverLocation
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: Driver identifier
+          schema:
+            type: string
+            example: "driver1"
+      responses:
+        '200':
+          description: Driver location and status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverLocationResponse'
+        '400':
+          description: Missing driver ID
+        '404':
+          description: Driver not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '405':
+          description: Method not allowed
+    post:
+      summary: Update Driver Location
+      description: Update the current location of a driver
+      operationId: updateDriverLocation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationUpdateRequest'
+      responses:
+        '200':
+          description: Location updated successfully
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "OK"
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '405':
+          description: Method not allowed
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /order:
+    post:
+      summary: Place Order
+      description: Create a new food delivery order
+      operationId: placeOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderRequest'
+      responses:
+        '200':
+          description: Order placed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '405':
+          description: Method not allowed
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /order/delivered:
+    post:
+      summary: Mark Order Delivered
+      description: Update order status to delivered
+      operationId: markOrderDelivered
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliveredRequest'
+      responses:
+        '200':
+          description: Order marked as delivered
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "OK"
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '405':
+          description: Method not allowed
+
+  /order/get:
+    get:
+      summary: Get Order Details
+      description: Retrieve details of a specific order
+      operationId: getOrder
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: Order identifier
+          schema:
+            type: string
+            example: "order123"
+      responses:
+        '200':
+          description: Order details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          description: Missing order ID
+        '404':
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '405':
+          description: Method not allowed
+
+  /orders:
+    get:
+      summary: List Orders
+      description: Get all orders in the system
+      operationId: listOrders
+      responses:
+        '200':
+          description: List of orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+        '405':
+          description: Method not allowed
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Location:
+      type: object
+      description: GPS coordinates
+      properties:
+        lat:
+          type: number
+          format: double
+          description: Latitude coordinate
+          example: 19.0760
+        lng:
+          type: number
+          format: double
+          description: Longitude coordinate
+          example: 72.8777
+      required:
+        - lat
+        - lng
+
+    Restaurant:
+      type: object
+      description: Restaurant information
+      properties:
+        id:
+          type: string
+          description: Unique restaurant identifier
+          example: "rest1"
+        name:
+          type: string
+          description: Restaurant name
+          example: "Pizza Place"
+        location:
+          $ref: '#/components/schemas/Location'
+      required:
+        - id
+        - name
+        - location
+
+    Menu:
+      type: object
+      description: Restaurant menu
+      properties:
+        restaurant_id:
+          type: string
+          description: Restaurant identifier
+          example: "rest1"
+        items:
+          type: array
+          description: List of menu items
+          items:
+            type: string
+          example: ["Margherita", "Pepperoni"]
+      required:
+        - restaurant_id
+        - items
+
+    EnrollRequest:
+      type: object
+      description: Restaurant enrollment request
+      properties:
+        id:
+          type: string
+          description: Restaurant identifier
+          example: "rest3"
+        name:
+          type: string
+          description: Restaurant name
+          example: "Sushi Bar"
+        location:
+          $ref: '#/components/schemas/Location'
+        menu:
+          type: array
+          description: Initial menu items
+          items:
+            type: string
+          example: ["California Roll", "Salmon Nigiri"]
+      required:
+        - id
+        - name
+        - location
+        - menu
+
+    Driver:
+      type: object
+      description: Driver information
+      properties:
+        id:
+          type: string
+          description: Unique driver identifier
+          example: "driver1"
+        name:
+          type: string
+          description: Driver name
+          example: "John Doe"
+        location:
+          $ref: '#/components/schemas/Location'
+      required:
+        - id
+        - name
+        - location
+
+    DriverWithStatus:
+      type: object
+      description: Driver with availability status
+      properties:
+        id:
+          type: string
+          description: Driver identifier
+          example: "driver1"
+        name:
+          type: string
+          description: Driver name
+          example: "John Doe"
+        location:
+          $ref: '#/components/schemas/Location'
+        available:
+          type: boolean
+          description: Driver availability status
+          example: true
+      required:
+        - id
+        - name
+        - location
+        - available
+
+    DriverLocationResponse:
+      type: object
+      description: Driver location response
+      properties:
+        id:
+          type: string
+          description: Driver identifier
+          example: "driver1"
+        location:
+          $ref: '#/components/schemas/Location'
+        available:
+          type: boolean
+          description: Driver availability status
+          example: true
+      required:
+        - id
+        - location
+        - available
+
+    LocationUpdateRequest:
+      type: object
+      description: Driver location update request
+      properties:
+        id:
+          type: string
+          description: Driver identifier
+          example: "driver1"
+        location:
+          $ref: '#/components/schemas/Location'
+      required:
+        - id
+        - location
+
+    Order:
+      type: object
+      description: Food delivery order
+      properties:
+        id:
+          type: string
+          description: Unique order identifier
+          example: "order123"
+        restaurant_id:
+          type: string
+          description: Restaurant identifier
+          example: "rest1"
+        items:
+          type: array
+          description: Ordered food items
+          items:
+            type: string
+          example: ["Margherita Pizza"]
+        user_location:
+          $ref: '#/components/schemas/Location'
+        driver_id:
+          type: string
+          description: Assigned driver identifier
+          example: "driver1"
+        status:
+          type: string
+          description: Order status
+          enum: [created, preparing, out_for_delivery, delivered]
+          example: "created"
+      required:
+        - id
+        - restaurant_id
+        - items
+        - user_location
+
+    OrderRequest:
+      type: object
+      description: Order creation request
+      properties:
+        id:
+          type: string
+          description: Order identifier
+          example: "order123"
+        restaurant_id:
+          type: string
+          description: Restaurant identifier
+          example: "rest1"
+        items:
+          type: array
+          description: Food items to order
+          items:
+            type: string
+          example: ["Margherita Pizza"]
+        user_location:
+          $ref: '#/components/schemas/Location'
+        driver_id:
+          type: string
+          description: Driver identifier (optional)
+          example: "driver1"
+      required:
+        - id
+        - restaurant_id
+        - items
+        - user_location
+
+    DeliveredRequest:
+      type: object
+      description: Order delivered request
+      properties:
+        order_id:
+          type: string
+          description: Order identifier
+          example: "order123"
+      required:
+        - order_id
+
+    Error:
+      type: object
+      description: Error response
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "Invalid request data"
+        code:
+          type: string
+          description: Error code
+          example: "VALIDATION_ERROR"
+      required:
+        - error
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication
+
+tags:
+  - name: Health
+    description: System health monitoring
+  - name: Restaurants
+    description: Restaurant management operations
+  - name: Drivers
+    description: Driver management and tracking
+  - name: Orders
+    description: Order management and tracking
+  - name: Menu
+    description: Restaurant menu operations
